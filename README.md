@@ -21,6 +21,8 @@ is currently possible but I'm terrible at CMake so, good luck.
 
 ### TODO
 
+* deal with frames spread over multiple packets
+* blocks spread across multiple frames, RIP
 * heuristic application
 * unit testing
 * more useful filtering

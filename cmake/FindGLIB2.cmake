@@ -8,7 +8,7 @@
 #  GLIB2_INCLUDE_DIRS - the GLib2 include directory
 #  GLIB2_LIBRARIES - Link these to use GLib2
 #
-#  HAVE_GLIB_GREGEX_H  glib has gregex.h header and 
+#  HAVE_GLIB_GREGEX_H  glib has gregex.h header and
 #                      supports g_regex_match_simple
 #
 #  Copyright (c) 2006 Andreas Schneider <mail@cynapses.org>

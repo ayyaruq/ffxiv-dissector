@@ -3,7 +3,7 @@
 #
 # This snippet sets the following variables:
 #  WIRESHARK_FOUND             True if wireshark library got found
-#  WIRESHARK_INCLUDE_DIRS      Location of the wireshark headers 
+#  WIRESHARK_INCLUDE_DIRS      Location of the wireshark headers
 #  WIRESHARK_LIBRARIES         List of libraries to use wireshark
 #
 #  Copyright (c) 2011 Reinhold Kainhofer <reinhold@kainhofer.com>
@@ -26,7 +26,7 @@ ELSE ( WIRESHARK_LIBRARIES AND WIRESHARK_INCLUDE_DIRS )
   MESSAGE( SEND_ERROR "Could NOT find the wireshark library and headers" )
 ENDIF ( WIRESHARK_LIBRARIES AND WIRESHARK_INCLUDE_DIRS )
 
-IF (WIRESHARK_FOUND) 
+IF (WIRESHARK_FOUND)
   MESSAGE (STATUS "Found wireshark libs at ${WIRESHARK_INCLUDE_DIRS}")
 ELSE()
   MESSAGE (STATUS "Wireshark libs not found!")
