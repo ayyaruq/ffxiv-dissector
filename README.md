@@ -7,11 +7,13 @@ debugging the FFXIV wire protocol.
 ### Compilation
 
 To compile the shared library, simply run the following:
+
     $ mkdir build && cd build
     $ cmake ..
     $ make
 
 To install into `${HOME}/.wireshark/plugins`, run:
+
     $ make install
 
 On MacOS, you will need to have Wireshark installed with the epan headers.
