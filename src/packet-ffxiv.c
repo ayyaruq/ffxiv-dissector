@@ -165,6 +165,42 @@ static int dissect_ffxiv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 // Wireshark standard is to stick these at the end
 void proto_register_ffxiv(void) {
   static hf_register_info hf[] = {
+    { &hf_ffxiv_frame_pdu_type,
+      { "Frame Type", "ffxiv.frame.type",
+        FT_UINT16, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    // Do something here to get timestamps rendered properly
+    { &hf_ffxiv_frame_pdu_timestamp,
+      { "Frame Timestamp", "ffxiv.frame.timestamp",
+        FT_UINT64, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ffxiv_frame_pdu_length,
+     { "Frame Length", "ffxiv.frame.length",
+        FT_UINT32, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ffxiv_frame_pdu_count,
+      { "Frame Count", "ffxiv.frame.count",
+        FT_UINT16, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ffxiv_frame_flag_compressed,
+      { "Frame Length", "ffxiv.frame.length",
+        FT_BOOLEAN, 8,
+        NULL, FFXIV_COMPRESSED_FLAG,
+        NULL, HFILL
+      }
+    },
     { &hf_ffxiv_message_pdu_length,
       { "Block Length", "ffxiv.message.length",
         FT_UINT32, BASE_DEC,
@@ -172,20 +208,20 @@ void proto_register_ffxiv(void) {
         NULL, HFILL
       }
     },
-     { &hf_ffxiv_message_pdu_id,
+    { &hf_ffxiv_message_pdu_id,
       { "Block Length", "ffxiv.message.id",
         FT_UINT64, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL
       }
     },
-     { &hf_ffxiv_message_pdu_type,
+    { &hf_ffxiv_message_pdu_type,
       { "Block Length", "ffxiv.message.type",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL
       }
-    }
+    },
   };
 
   static gint *ett[] = {
@@ -214,8 +250,8 @@ void proto_register_ffxiv_frame(void) {
 
   proto_ffxiv_frame = proto_register_protocol (
     "FFXIV Frame",    /* name       */
-    "FFXIV Frame",    /* short name */
-    "ffxiv_frame"     /* abbrev     */
+    "ffxiv/frame",    /* short name */
+    "ffxiv-frame"     /* abbrev     */
   );
 
   //proto_register_field_array(proto_ffxiv_frame, hf, array_length(hf));
@@ -227,34 +263,10 @@ void proto_register_ffxiv_message(void) {
     &ett_ffxiv_message
   };
 
-  static hf_register_info hf[] = {
-    { &hf_ffxiv_message_pdu_length,
-      { "Block Length", "ffxiv.message.length",
-        FT_UINT32, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL
-      }
-    },
-     { &hf_ffxiv_message_pdu_id,
-      { "Block Length", "ffxiv.message.id",
-        FT_UINT64, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL
-      }
-    },
-     { &hf_ffxiv_message_pdu_type,
-      { "Block Length", "ffxiv.message.type",
-        FT_UINT32, BASE_DEC,
-        NULL, 0x0,
-        NULL, HFILL
-      }
-    }
-  };
-
   proto_ffxiv_message = proto_register_protocol (
     "FFXIV Message",    /* name       */
-    "FFXIV MSG",        /* short name */
-    "ffxiv_msg"         /* abbrev     */
+    "ffxiv/message",        /* short name */
+    "ffxiv-message"         /* abbrev     */
   );
 
   proto_register_subtree_array(ett, array_length(ett));
