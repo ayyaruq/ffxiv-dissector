@@ -16,6 +16,8 @@ To install into `${HOME}/.wireshark/plugins`, run:
 
     $ make install
 
+For debugging with GDB or LLDB, use `cmake -DCMAKE_BUILD_TYPE=Debug ..` instead.
+
 On MacOS, you will need to have Wireshark installed with the epan headers.
 For building on Windows or Linux, I have no idea. Building a static library
 is currently possible but I'm terrible at CMake so, good luck.
@@ -34,7 +36,7 @@ is currently possible but I'm terrible at CMake so, good luck.
 
 ### Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/ffxiv-dissector/fork )
+1. Fork it ( https://github.com/ayyaruq/ffxiv-dissector/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

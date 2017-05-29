@@ -52,16 +52,14 @@ static guint32 get_message_length(packet_info *pinfo, tvbuff_t *tvb, int offset,
 
 // Message header dissector
 static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-  proto_tree          *message_tree = NULL;
-  proto_item          *ti = NULL;
-  block_header_t      header;
-  int                 datalen;
-  int                 orig_offset;
-  int                 offset = 0;
-  int                 reported_datalen;
-  int                 reported_length;
-  tvbuff_t            *next_tvb;
-
+  proto_tree      *message_tree = NULL;
+  proto_item      *ti = NULL;
+  block_header_t  header;
+  int             datalen;
+  int             orig_offset;
+  int             offset = 0;
+  int             reported_datalen;
+  int             reported_length;
 
   // Verify we have a full message in the tvb
   reported_length = tvb_reported_length_remaining(tvb, offset);
@@ -95,12 +93,11 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     reported_datalen = (int)header.block_length;
   }
 
-  add_new_data_source(pinfo, tvb, "Message Data");
-
   /*
     TODO: insert code for dealing with message types,
     for now register it as generic data.
   */
+  add_new_data_source(pinfo, tvb, "Message Data");
 
   return tvb_captured_length(tvb);
 }
