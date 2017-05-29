@@ -18,20 +18,29 @@ To install into `${HOME}/.wireshark/plugins`, run:
 
 For debugging with GDB or LLDB, use `cmake -DCMAKE_BUILD_TYPE=Debug ..` instead.
 
-On MacOS, you will need to have Wireshark installed with the epan headers.
-For building on Windows or Linux, I have no idea. Building a static library
+On Linux and MacOS, you will need to have Wireshark installed with the epan
+headers. For building on Windows, I have no idea. Building a static library
 is currently possible but I'm terrible at CMake so, good luck.
 
 
 ### TODO
 
-* deal with frames spread over multiple packets
-* blocks spread across multiple frames, RIP
-* heuristic application
+* type matching for battle, market, fishing, etc message types
+* blocks spread across multiple frames
+* heuristic protocol detection
 * unit testing
 * more useful filtering
 * colourisation
-* type matching for battle, market, fishing, etc message types
+
+
+### Help
+
+For feature requests and debugging, please open a GitHub issue and tag
+appropriately. For questions about new functionality you'd like to add
+or how something in particular works, open an issue or find @acchan#4976
+on Discord. If you need help with Wireshark itself, please read upstream
+documentation. This dissector is intended to assist developers and shouldn't
+be used by the general public for parsing data in realtime or otherwise.
 
 
 ### Contributing
