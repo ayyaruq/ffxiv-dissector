@@ -39,13 +39,13 @@ typedef struct {
   } block_header_t;
 */
 typedef struct {
-  uint32_t  block_length;  // [0:3]
-  uint64_t  entity_id;     // [4:11]
+  uint32_t  length;  // [0:3]
+  uint32_t  send_id;       // [4:7]
+  uint32_t  recv_id;       // [8:11]
   uint32_t  mystery1;      // [12:15]
-  uint32_t  block_type;    // [16:20]
+  uint32_t  block_type;    // [16:19]
   uint32_t  mystery2;      // these could be smaller, no idea what's after header[20:]
-  uint32_t  mystery3;
-  uint32_t  mystery4;
+  uint64_t  timestamp;     // [24:31]
 } block_header_t;
 
 // FFXIV Frame
@@ -57,8 +57,10 @@ static int hf_ffxiv_frame_flag_compressed = -1;
 
 // FFXIV Message
 static int hf_ffxiv_message_pdu_length = -1;
-static int hf_ffxiv_message_pdu_id = -1;
+static int hf_ffxiv_message_pdu_send_id = -1;
+static int hf_ffxiv_message_pdu_recv_id = -1;
 static int hf_ffxiv_message_pdu_type = -1;
+static int hf_ffxiv_message_pdu_timestamp = -1;
 
 // Utility methods
 static guint32 get_frame_length(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);

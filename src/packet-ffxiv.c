@@ -32,13 +32,17 @@ static void build_frame_header(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static void build_message_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, block_header_t *eh_ptr) {
-  eh_ptr->block_length = tvb_get_letohl(tvb, offset);
-  eh_ptr->entity_id    = tvb_get_letoh64(tvb, offset+4);
-  eh_ptr->block_type   = tvb_get_letohl(tvb, offset+16);
+  eh_ptr->length      = tvb_get_letohl(tvb, offset);
+  eh_ptr->send_id     = tvb_get_letohl(tvb, offset+4);
+  eh_ptr->recv_id     = tvb_get_letohl(tvb, offset+8);
+  eh_ptr->block_type  = tvb_get_letohl(tvb, offset+16);
+  eh_ptr->timestamp   = tvb_get_letoh64(tvb, offset+24);
 
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_length, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ffxiv_message_pdu_id, tvb, 4, 8, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ffxiv_message_pdu_send_id, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ffxiv_message_pdu_recv_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_type, tvb, 16, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ffxiv_message_pdu_timestamp, tvb, 24, 8, ENC_LITTLE_ENDIAN);
 }
 
 // Deal with multiple payloads in a single PDU
@@ -83,14 +87,14 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   datalen          = tvb_captured_length_remaining(tvb, offset);
 
   // TODO: fix this to deal with partial/malformed packets
-  if (datalen > header.block_length) {
+  if (datalen > header.length) {
     // we probably have a partial block but eh
-    datalen = (int)header.block_length;
+    datalen = (int)header.length;
   }
 
-  if (reported_datalen > header.block_length) {
+  if (reported_datalen > header.length) {
     // same
-    reported_datalen = (int)header.block_length;
+    reported_datalen = (int)header.length;
   }
 
   /*
@@ -203,9 +207,16 @@ void proto_register_ffxiv(void) {
         NULL, HFILL
       }
     },
-    { &hf_ffxiv_message_pdu_id,
-      { "Message ID", "ffxiv.message.id",
-        FT_UINT64, BASE_DEC,
+    { &hf_ffxiv_message_pdu_send_id,
+      { "Message Sender ID", "ffxiv.message.sender",
+        FT_UINT32, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_ffxiv_message_pdu_recv_id,
+      { "Message Receiver ID", "ffxiv.message.receiver",
+        FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL
       }
@@ -215,6 +226,13 @@ void proto_register_ffxiv(void) {
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL
+      }
+    },
+    { &hf_ffxiv_message_pdu_timestamp,
+      { "Message Timestamp", "ffxiv.message.timestamp",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+        NULL, 0x0,
+        "The timestamp of the message event", HFILL
       }
     },
   };
