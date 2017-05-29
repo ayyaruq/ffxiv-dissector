@@ -41,7 +41,9 @@ static void build_message_header(tvbuff_t *tvb, int offset, packet_info *pinfo, 
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_length, tvb, 0, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_send_id, tvb, 4, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_recv_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ffxiv_message_pdu_type, tvb, 16, 4, ENC_LITTLE_ENDIAN);
+
+  // This is actually little endian, but we display it as BE to make debugging easier for now
+  proto_tree_add_item(tree, hf_ffxiv_message_pdu_type, tvb, 16, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_timestamp, tvb, 24, 8, ENC_LITTLE_ENDIAN);
 }
 
@@ -223,7 +225,7 @@ void proto_register_ffxiv(void) {
     },
     { &hf_ffxiv_message_pdu_type,
       { "Message Type", "ffxiv.message.type",
-        FT_UINT32, BASE_DEC,
+        FT_UINT32, BASE_HEX,
         NULL, 0x0,
         NULL, HFILL
       }
