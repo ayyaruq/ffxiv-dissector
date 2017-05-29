@@ -23,13 +23,6 @@ ELSE()
 ENDIF()
 include_directories (${GCRYPT_INCLUDE_DIR})
 
-IF( NOT DEFINED ZLIB_INCLUDE_DIR)
-  find_package(ZLib)
-ELSE()
-  set(GLIB2_INCLUDE_DIRS $ENV{ZLIB_INCLUDE_DIR})
-ENDIF()
-include_directories (${ZLIB_INCLUDE_DIR})
-
 IF(NOT DEFINED WIRESHARK_INCLUDE_DIRS)
   find_package(Wireshark)
 ELSE()
@@ -74,7 +67,7 @@ add_library(ffxiv ${LINK_MODE_MODULE}
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(ffxiv wireshark gcrypt glib-2.0 z)
+target_link_libraries(ffxiv wireshark gcrypt glib-2.0)
 
 install(TARGETS ffxiv
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/plugins NAMELINK_SKIP
