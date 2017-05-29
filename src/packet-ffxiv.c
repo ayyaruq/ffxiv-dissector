@@ -83,6 +83,10 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   orig_offset = offset;
 
   build_message_header(tvb, orig_offset, pinfo, message_tree, &header);
+  if (reported_length < header.length) {
+    return -1;
+  }
+
   offset += BLOCK_HEADER_LEN;
 
   reported_datalen = tvb_reported_length_remaining(tvb, offset);
@@ -103,9 +107,9 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     TODO: insert code for dealing with message types,
     for now register it as generic data.
   */
-  add_new_data_source(pinfo, tvb, "Message Data");
+  add_new_data_source(pinfo, tvb_new_subset_length(tvb, 0, header.length), "Message Data");
 
-  return tvb_captured_length(tvb);
+  return header.length;
 }
 
 // Frame header dissector
@@ -120,6 +124,7 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   int                 reported_datalen;
   dissector_handle_t  next_handle = NULL;
   tvbuff_t            *next_tvb;
+  tvbuff_t            *message_tvb;
 
   // Verify we have a full frame header, if not we need reassembly
   reported_datalen = tvb_reported_length_remaining(tvb, offset);
@@ -145,8 +150,14 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     next_tvb = tvb_new_subset_remaining(tvb, FRAME_HEADER_LEN);
   }
 
-  tcp_dissect_pdus(next_tvb, pinfo, frame_tree, TRUE, BLOCK_HEADER_LEN,
-    get_message_length, dissect_message, data);
+  offset = 0;
+  for(int i = 0; i < header.blocks; ++i) {
+    message_tvb = tvb_new_subset_remaining(next_tvb, offset);
+    length = dissect_message(message_tvb, pinfo, frame_tree, data);
+    if(length > 0) {
+      offset += length;
+    }
+  }
 
   return tvb_captured_length(next_tvb);
 }
