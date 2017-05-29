@@ -1,5 +1,6 @@
 // General
 #include <stdio.h>
+#include <stdint.h>
 
 #define FRAME_HEADER_LEN 40
 #define BLOCK_HEADER_LEN 32
