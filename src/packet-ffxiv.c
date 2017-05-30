@@ -160,7 +160,7 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     remaining_messages_tvb = tvb_new_subset_remaining(remaining_messages_tvb, offset);
     length = dissect_message(remaining_messages_tvb, pinfo, frame_tree, data);
     offset = length;
-  } while(length > BLOCK_HEADER_LEN);
+  } while(length >= BLOCK_HEADER_LEN);
 
   //TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted.
 
