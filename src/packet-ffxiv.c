@@ -154,9 +154,10 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   for(int i = 0; i < header.blocks; ++i) {
     message_tvb = tvb_new_subset_remaining(next_tvb, offset);
     length = dissect_message(message_tvb, pinfo, frame_tree, data);
-    if(length > 0) {
-      offset += length;
-    }
+    if(length < 0) {
+		return -1; // incomplete/corrupted frame
+	}
+	offset += length;
   }
 
   return tvb_captured_length(next_tvb);
