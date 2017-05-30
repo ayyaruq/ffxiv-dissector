@@ -66,6 +66,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   int             offset = 0;
   int             reported_datalen;
   int             reported_length;
+  tvbuff_t        *message_tvb;
 
   // Verify we have a full message in the tvb
   reported_length = tvb_reported_length_remaining(tvb, offset);
@@ -107,9 +108,12 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     TODO: insert code for dealing with message types,
     for now register it as generic data.
   */
-  add_new_data_source(pinfo, tvb_new_subset_length(tvb, 0, header.length), "Message Data");
 
-  return header.length;
+  message_tvb = tvb_new_subset_length(tvb, 0, header.length);
+
+  add_new_data_source(pinfo, message_tvb , "Message Data");
+
+  return tvb_captured_length(message_tvb);
 }
 
 // Frame header dissector
@@ -123,8 +127,8 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   int                 captured_datalen;
   int                 reported_datalen;
   dissector_handle_t  next_handle = NULL;
-  tvbuff_t            *next_tvb;
-  tvbuff_t            *message_tvb;
+  tvbuff_t            *payload_tvb;
+  tvbuff_t            *remaining_messages_tvb;
 
   // Verify we have a full frame header, if not we need reassembly
   reported_datalen = tvb_reported_length_remaining(tvb, offset);
@@ -145,22 +149,22 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
   // This is wrong - maybe? We should only have a single frame here from the top level dissector
   if (header.compressed & FFXIV_COMPRESSED_FLAG) {
-    next_tvb = tvb_uncompress(tvb, FRAME_HEADER_LEN, tvb_reported_length_remaining(tvb, FRAME_HEADER_LEN));
+    payload_tvb = tvb_uncompress(tvb, FRAME_HEADER_LEN, tvb_reported_length_remaining(tvb, FRAME_HEADER_LEN));
   } else {
-    next_tvb = tvb_new_subset_remaining(tvb, FRAME_HEADER_LEN);
+    payload_tvb = tvb_new_subset_remaining(tvb, FRAME_HEADER_LEN);
   }
 
+  remaining_messages_tvb = payload_tvb;
   offset = 0;
-  for(int i = 0; i < header.blocks; ++i) {
-    message_tvb = tvb_new_subset_remaining(next_tvb, offset);
-    length = dissect_message(message_tvb, pinfo, frame_tree, data);
-    if(length < 0) {
-		return -1; // incomplete/corrupted frame
-	}
-	offset += length;
-  }
+  do {
+    remaining_messages_tvb = tvb_new_subset_remaining(remaining_messages_tvb, offset);
+    length = dissect_message(remaining_messages_tvb, pinfo, frame_tree, data);
+    offset = length;
+  } while(length > BLOCK_HEADER_LEN);
 
-  return tvb_captured_length(next_tvb);
+  //TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted.
+
+  return tvb_captured_length(payload_tvb);
 }
 
 // Main dissection method
