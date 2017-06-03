@@ -10,7 +10,7 @@
 
 #define FFXIV_COMPRESSED_FLAG 0x01
 #define FFXIV_MAGIC 0x5252
-#define FFXIV_PORT 55023
+#define FFXIV_PORT_RANGE "55000-55551"
 
 static range_t *global_ffxiv_port_range = NULL;
 
@@ -262,23 +262,45 @@ void proto_register_ffxiv(void) {
 
   proto_register_subtree_array(ett, array_length(ett));
 
-  ffxiv_handle = register_dissector("ffxiv", dissect_ffxiv, proto_ffxiv);
   ffxiv_module = prefs_register_protocol(proto_ffxiv, NULL);
 
   ffxiv_frame_magic_table = register_dissector_table(
     "ffxiv.frame.magic", "FFXIV Magic Byte", proto_ffxiv, FT_UINT16, BASE_DEC
   );
 
+  range_convert_str(&global_ffxiv_port_range, FFXIV_PORT_RANGE, 55551);
   prefs_register_range_preference(ffxiv_module, "tcp.port", "FFXIV port range",
     "Range of ports to look for FFXIV traffic on.",
     &global_ffxiv_port_range, 55551
   );
 }
 
+// Setup ranged port handlers
+static void ffxiv_tcp_dissector_add(guint32 port)
+{
+  dissector_add_uint("tcp.port", port, ffxiv_handle);
+}
+
+static void ffxiv_tcp_dissector_delete(guint32 port)
+{
+  dissector_delete_uint("tcp.port", port, ffxiv_handle);
+}
+
 // Register handlers
 void proto_reg_handoff_ffxiv(void) {
-  dissector_add_uint("ffxiv.frame.magic", FFXIV_MAGIC, ffxiv_handle);
+  static range_t *ffxiv_port_range;
+  static gboolean initialised = FALSE;
 
-  // change to dissector_add_uint_with_preference when adding preference for port
-  dissector_add_uint("tcp.port", FFXIV_PORT, ffxiv_handle);
+  if (!initialised) {
+    ffxiv_handle = register_dissector("ffxiv", dissect_ffxiv, proto_ffxiv);
+    initialised = TRUE;
+  } else {
+    range_foreach(ffxiv_port_range, ffxiv_tcp_dissector_delete);
+    g_free(ffxiv_port_range);
+  }
+
+  ffxiv_port_range = range_copy(global_ffxiv_port_range);
+  range_foreach(ffxiv_port_range, ffxiv_tcp_dissector_add);
+
+  dissector_add_uint("ffxiv.frame.magic", FFXIV_MAGIC, ffxiv_handle);
 }
