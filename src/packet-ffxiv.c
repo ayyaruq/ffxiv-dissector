@@ -121,7 +121,6 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree          *frame_tree = NULL;
   proto_item          *ti = NULL;
   frame_header_t      header;
-  int                 orig_offset;
   int                 offset = 0;
   int                 length;
   int                 captured_datalen;
@@ -142,12 +141,8 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   ti         = proto_tree_add_item(tree, proto_ffxiv, tvb, 0, -1, ENC_NA);
   frame_tree = proto_item_add_subtree(ti, ett_ffxiv);
 
-  orig_offset = offset;
+  build_frame_header(tvb, offset, pinfo, frame_tree, &header);
 
-  build_frame_header(tvb, orig_offset, pinfo, frame_tree, &header);
-  offset += FRAME_HEADER_LEN;
-
-  // This is wrong - maybe? We should only have a single frame here from the top level dissector
   if (header.compressed & FFXIV_COMPRESSED_FLAG) {
     payload_tvb = tvb_uncompress(tvb, FRAME_HEADER_LEN, tvb_reported_length_remaining(tvb, FRAME_HEADER_LEN));
   } else {
@@ -160,9 +155,9 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     remaining_messages_tvb = tvb_new_subset_remaining(remaining_messages_tvb, offset);
     length = dissect_message(remaining_messages_tvb, pinfo, frame_tree, data);
     offset = length;
-  } while(length >= BLOCK_HEADER_LEN);
+  } while (length >= BLOCK_HEADER_LEN);
 
-  //TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted.
+  //TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted or spread over multiple frames
 
   return tvb_captured_length(payload_tvb);
 }
