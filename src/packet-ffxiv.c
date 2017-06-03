@@ -17,9 +17,9 @@ static range_t *global_ffxiv_port_range = NULL;
 // Assemble generic headers
 static void build_frame_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, frame_header_t *eh_ptr) {
   eh_ptr->magic      = tvb_get_letohs(tvb, offset);
-  eh_ptr->timestamp  = tvb_get_letoh64(tvb, offset+16);
-  eh_ptr->length     = tvb_get_letohl(tvb, offset+24);
-  eh_ptr->blocks     = tvb_get_letohs(tvb, offset+30);
+  eh_ptr->timestamp  = tvb_get_letoh64(tvb, offset + 16);
+  eh_ptr->length     = tvb_get_letohl(tvb, offset + 24);
+  eh_ptr->blocks     = tvb_get_letohs(tvb, offset + 30);
   eh_ptr->compressed = tvb_get_guint8(tvb, 33);
 
   proto_tree_add_item(tree, hf_ffxiv_frame_pdu_magic, tvb, 0, 2, ENC_LITTLE_ENDIAN);
@@ -33,10 +33,10 @@ static void build_frame_header(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 static void build_message_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, block_header_t *eh_ptr) {
   eh_ptr->length      = tvb_get_letohl(tvb, offset);
-  eh_ptr->send_id     = tvb_get_letohl(tvb, offset+4);
-  eh_ptr->recv_id     = tvb_get_letohl(tvb, offset+8);
-  eh_ptr->block_type  = tvb_get_letohl(tvb, offset+16);
-  eh_ptr->timestamp   = tvb_get_letoh64(tvb, offset+24);
+  eh_ptr->send_id     = tvb_get_letohl(tvb, offset + 4);
+  eh_ptr->recv_id     = tvb_get_letohl(tvb, offset + 8);
+  eh_ptr->block_type  = tvb_get_letohl(tvb, offset + 16);
+  eh_ptr->timestamp   = tvb_get_letoh64(tvb, offset + 24);
 
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_length, tvb, 0, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ffxiv_message_pdu_send_id, tvb, 4, 4, ENC_LITTLE_ENDIAN);
@@ -49,7 +49,7 @@ static void build_message_header(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 // Deal with multiple payloads in a single PDU
 static guint32 get_frame_length(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data) {
-  return tvb_get_letohl(tvb, offset+24);
+  return tvb_get_letohl(tvb, offset + 24);
 }
 
 static guint32 get_message_length(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data) {
@@ -111,7 +111,7 @@ static int dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
   message_tvb = tvb_new_subset_length(tvb, 0, header.length);
 
-  add_new_data_source(pinfo, message_tvb , "Message Data");
+  add_new_data_source(pinfo, message_tvb, "Message Data");
 
   return tvb_captured_length(message_tvb);
 }
@@ -123,9 +123,7 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   frame_header_t      header;
   int                 offset = 0;
   int                 length;
-  int                 captured_datalen;
   int                 reported_datalen;
-  dissector_handle_t  next_handle = NULL;
   tvbuff_t            *payload_tvb;
   tvbuff_t            *remaining_messages_tvb;
 
@@ -157,7 +155,7 @@ static int dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     offset = length;
   } while (length >= BLOCK_HEADER_LEN);
 
-  //TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted or spread over multiple frames
+  // TODO: if remaining_messages_tvb has length > 0 here it's most likely corrupted or spread over multiple frames
 
   return tvb_captured_length(payload_tvb);
 }
@@ -168,8 +166,7 @@ static int dissect_ffxiv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   if (!tvb_bytes_exist(tvb, 0, FRAME_HEADER_LEN))
     return 0;
 
-  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
-                   get_frame_length, dissect_frame, data);
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN, get_frame_length, dissect_frame, data);
 
   return tvb_captured_length(tvb);
 }
@@ -257,7 +254,7 @@ void proto_register_ffxiv(void) {
   module_t          *ffxiv_module;
   dissector_table_t ffxiv_frame_magic_table;
 
-  proto_ffxiv = proto_register_protocol ("FFXIV", "FFXIV", "ffxiv");
+  proto_ffxiv = proto_register_protocol("FFXIV", "FFXIV", "ffxiv");
   proto_register_field_array(proto_ffxiv, hf, array_length(hf));
 
   proto_register_subtree_array(ett, array_length(ett));
@@ -270,19 +267,16 @@ void proto_register_ffxiv(void) {
 
   range_convert_str(&global_ffxiv_port_range, FFXIV_PORT_RANGE, 55551);
   prefs_register_range_preference(ffxiv_module, "tcp.port", "FFXIV port range",
-    "Range of ports to look for FFXIV traffic on.",
-    &global_ffxiv_port_range, 55551
+    "Range of ports to look for FFXIV traffic on.", &global_ffxiv_port_range, 55551
   );
 }
 
 // Setup ranged port handlers
-static void ffxiv_tcp_dissector_add(guint32 port)
-{
+static void ffxiv_tcp_dissector_add(guint32 port) {
   dissector_add_uint("tcp.port", port, ffxiv_handle);
 }
 
-static void ffxiv_tcp_dissector_delete(guint32 port)
-{
+static void ffxiv_tcp_dissector_delete(guint32 port) {
   dissector_delete_uint("tcp.port", port, ffxiv_handle);
 }
 
