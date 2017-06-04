@@ -1,6 +1,6 @@
 # FFXIV Wireshark Dissector
 
-[![Build Status](https://travis-ci.org/ayyaruq/ffxiv-dissector.svg?branch=master)](https://travis-ci.org/ayyaruq/ffxiv-dissector)
+[![Discord](https://img.shields.io/badge/discord-dev%40thebalance-blue.svg)](https://discord.gg/wbtVth5) [![Build Status](https://travis-ci.org/ayyaruq/ffxiv-dissector.svg?branch=master)](https://travis-ci.org/ayyaruq/ffxiv-dissector)
 
 This dissector splits FFXIV frames and reassembles messages to assist in
 debugging the FFXIV wire protocol.
