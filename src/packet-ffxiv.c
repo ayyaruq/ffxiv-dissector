@@ -6,7 +6,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
-#include "src/packet-ffxiv.h"
+#include "packet-ffxiv.h"
 
 #define FFXIV_COMPRESSED_FLAG 0x01
 #define FFXIV_MAGIC 0x5252
