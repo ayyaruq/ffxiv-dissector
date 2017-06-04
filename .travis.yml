@@ -2,6 +2,8 @@
 language: c
 
 matrix:
+  allow_failures:
+    - os: osx
   include:
     - os: linux
       dist: trusty
