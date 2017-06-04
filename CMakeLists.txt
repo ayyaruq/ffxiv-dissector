@@ -2,12 +2,20 @@ project(ffxiv-wireshark-dissector C)
 
 cmake_minimum_required(VERSION 3.7)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-set(CMAKE_INSTALL_LIBDIR ~/.wireshark)
+IF (WIN32)
+  set(CMAKE_INSTALL_LIBDIR $ENV{APPDATA}/Wireshark/plugins)
+ELSE()
+  set(CMAKE_INSTALL_LIBDIR ~/.wireshark)
+ENDIF()
 
 include(UseMakeDissectorReg)
 include(CMakeForceCompiler)
 
 set(GLIB2_MIN_VERSION 2.4.0)
+
+IF(EXTRA_LIB_DIRS)
+  LINK_DIRECTORIES(${EXTRA_LIB_DIRS})
+ENDIF()
 
 IF(NOT DEFINED ENV{GLIB2_INCLUDE_DIRS})
   find_package(GLIB2)
@@ -67,7 +75,12 @@ add_library(ffxiv ${LINK_MODE_MODULE}
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(ffxiv wireshark gcrypt glib-2.0)
+IF (WIN32)
+  target_link_libraries(ffxiv wireshark glib-2.0)
+ELSE()
+  target_link_libraries(ffxiv wireshark gcrypt glib-2.0)
+ENDIF()
+
 
 install(TARGETS ffxiv
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/plugins NAMELINK_SKIP
