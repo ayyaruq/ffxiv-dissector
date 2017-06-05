@@ -6,11 +6,11 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
-#include "src/packet-ffxiv.h"
+#include "packet-ffxiv.h"
 
 #define FFXIV_COMPRESSED_FLAG 0x01
 #define FFXIV_MAGIC 0x5252
-#define FFXIV_PORT_RANGE "55000-55551"
+#define FFXIV_PORT_RANGE "54992-54994,55006-55007,55021-55040"
 
 static range_t *global_ffxiv_port_range = NULL;
 
