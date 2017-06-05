@@ -28,8 +28,7 @@ is currently possible but I'm terrible at CMake so, good luck.
 ### TODO
 
 * type matching for battle, market, fishing, etc message types
-* blocks spread across multiple frames
-* heuristic protocol detection
+* heuristic protocol detection (currently uses a giant protocol range)
 * unit testing
 * more useful filtering
 * colourisation
