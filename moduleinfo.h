@@ -5,7 +5,7 @@
 #endif
 
 /* Name of package */
-#define PACKAGE "ff14"
+#define PACKAGE "ffxiv"
 
 
 #ifdef VERSION

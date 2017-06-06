@@ -102,6 +102,9 @@ if(WIRESHARK_FOUND)
 
 else(WIRESHARK_FOUND)
 
+  include(WiresharkPlugin)
+  set_module_info(ffxiv 0 0 1 0)
+
   add_plugin_library(ffxiv)
 
   install(TARGETS ffxiv
