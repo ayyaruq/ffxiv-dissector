@@ -1,0 +1,72 @@
+diff --git a/wireshark-2.2.7/CMakeLists.txt b/wireshark-2.2.7/CMakeLists.txt
+index 78b7495..cd6296d 100644
+--- a/wireshark-2.2.7/CMakeLists.txt
++++ b/wireshark-2.2.7/CMakeLists.txt
+@@ -1119,6 +1119,7 @@ if(ENABLE_PLUGINS)
+ 		plugins/mate
+ 		plugins/opcua
+ 		plugins/profinet
++		plugins/ffxiv
+ 		plugins/stats_tree
+ 		plugins/unistim
+ 		plugins/wimax
+diff --git a/wireshark-2.2.7/Makefile.am b/wireshark-2.2.7/Makefile.am
+index cc40fe8..310d6cd 100644
+--- a/wireshark-2.2.7/Makefile.am
++++ b/wireshark-2.2.7/Makefile.am
+@@ -354,6 +354,7 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
+ 	-dlopen plugins/mate/mate.la \
+ 	-dlopen plugins/opcua/opcua.la \
+ 	-dlopen plugins/profinet/profinet.la \
++	-dlopen plugins/profinet/ffxiv.la \
+ 	-dlopen plugins/stats_tree/stats_tree.la \
+ 	-dlopen plugins/unistim/unistim.la \
+ 	-dlopen plugins/wimax/wimax.la \
+diff --git a/wireshark-2.2.7/configure.ac b/wireshark-2.2.7/configure.ac
+index 8059ded..b8db184 100644
+--- a/wireshark-2.2.7/configure.ac
++++ b/wireshark-2.2.7/configure.ac
+@@ -2832,6 +2832,7 @@ AC_CONFIG_FILES(
+   plugins/mate/Makefile
+   plugins/opcua/Makefile
+   plugins/profinet/Makefile
++  plugins/ffxiv/Makefile
+   plugins/stats_tree/Makefile
+   plugins/unistim/Makefile
+   plugins/wimax/Makefile
+diff --git a/wireshark-2.2.7/epan/Makefile.am b/wireshark-2.2.7/epan/Makefile.am
+index f5408b4..9d9e74e 100644
+--- a/wireshark-2.2.7/epan/Makefile.am
++++ b/wireshark-2.2.7/epan/Makefile.am
+@@ -491,6 +491,7 @@ plugin_src = \
+ 	../plugins/irda/packet-irda.c \
+ 	../plugins/m2m/packet-m2m.c \
+ 	../plugins/m2m/wimax_tlv.c \
++	../plugins/ffxiv/src/packet-ffxiv.c \
+ 	../plugins/wimax/crc.c \
+ 	../plugins/wimax/crc_data.c \
+ 	../plugins/wimax/mac_hd_generic_decoder.c \
+diff --git a/wireshark-2.2.7/packaging/nsis/wireshark.nsi b/wireshark-2.2.7/packaging/nsis/wireshark.nsi
+index 33d300d..a663151 100644
+--- a/wireshark-2.2.7/packaging/nsis/wireshark.nsi
++++ b/wireshark-2.2.7/packaging/nsis/wireshark.nsi
+@@ -961,6 +961,7 @@ File "${STAGING_DIR}\plugins\irda.dll"
+ File "${STAGING_DIR}\plugins\m2m.dll"
+ File "${STAGING_DIR}\plugins\opcua.dll"
+ File "${STAGING_DIR}\plugins\profinet.dll"
++File "${STAGING_DIR}\plugins\ffxiv.dll"
+ File "${STAGING_DIR}\plugins\unistim.dll"
+ File "${STAGING_DIR}\plugins\wimax.dll"
+ File "${STAGING_DIR}\plugins\wimaxasncp.dll"
+diff --git a/wireshark-2.2.7/plugins/Makefile.am b/wireshark-2.2.7/plugins/Makefile.am
+index 6b11b4e..f34a97f 100644
+--- a/wireshark-2.2.7/plugins/Makefile.am
++++ b/wireshark-2.2.7/plugins/Makefile.am
+@@ -31,6 +31,7 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
+ 	mate \
+ 	opcua \
+ 	profinet \
++	ffxiv \
+ 	stats_tree \
+ 	unistim \
+ 	wimax \
